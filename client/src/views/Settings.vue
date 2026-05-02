@@ -95,11 +95,11 @@
       <div class="space-y-4 text-sm">
         <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
           <span class="text-gray-500 dark:text-gray-400">应用名称</span>
-          <span class="text-gray-900 dark:text-white">DormInOne 宿舍全能管家</span>
+          <span class="text-gray-900 dark:text-white">DormInOne</span>
         </div>
         <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-          <span class="text-gray-500 dark:text-gray-400">版本</span>
-          <span class="text-gray-900 dark:text-white">1.0.0</span>
+          <span class="text-gray-500 dark:text-gray-400">GitHub 开源地址</span>
+          <span class="text-gray-900 dark:text-white"></span>
         </div>
         <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
           <span class="text-gray-500 dark:text-gray-400">技术栈</span>
