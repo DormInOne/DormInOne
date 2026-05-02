@@ -1,8 +1,10 @@
 # DormInOne - 宿舍全能管家
 
+<img src="logo.png" alt="DormInOne Logo" width="120">
+
 一个功能完整的宿舍管理系统，提供室友管理、值日排班、AA记账、用电监控、物品借用等功能。
 
-![DormInOne](https://img.shields.io/badge/DormInOne-%E5%AE%BF%E8%88%8D%E5%85%A8%E8%83%BD%E5%AE%B6%E5%AE%B6-blue)
+![Build Status](https://img.shields.io/badge/Build-Passing-green)
 ![Vue3](https://img.shields.io/badge/Vue-3.x-green)
 ![Node.js](https://img.shields.io/badge/Node.js-18.x-blue)
 

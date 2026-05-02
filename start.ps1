@@ -48,20 +48,40 @@ Write-Host "        Server Manager v1.0.0" -ForegroundColor Gray
 Write-Host "==============================================" -ForegroundColor Gray
 Draw-Separator
 
-Write-Host "[1/4] Cleaning up occupied ports..." -ForegroundColor Yellow
+Write-Host "[1/4] Terminating existing processes..." -ForegroundColor Yellow
+
+$processNames = @("node", "npm", "vite", "vue")
+foreach ($processName in $processNames) {
+    $processes = Get-Process -Name $processName -ErrorAction SilentlyContinue
+    if ($processes) {
+        foreach ($process in $processes) {
+            try {
+                Stop-Process -Id $process.Id -Force
+                Write-Host "        [KILLED] $processName (PID: $($process.Id))" -ForegroundColor Red
+            } catch {
+                # Ignore errors
+            }
+        }
+    }
+}
+Write-Host "        [OK] Existing processes terminated" -ForegroundColor Green
+
+Draw-Separator
+
+Write-Host "[2/4] Cleaning up occupied ports..." -ForegroundColor Yellow
 
 Clear-Ports -Ports @(3000, 5173)
 Write-Host "        [OK] Port cleanup completed" -ForegroundColor Green
 
 Draw-Separator
 
-Write-Host "[2/4] Waiting for system to release resources..." -ForegroundColor Yellow
+Write-Host "[3/5] Waiting for system to release resources..." -ForegroundColor Yellow
 Start-Sleep -Seconds 2
 Write-Host "        [OK] Ready to proceed" -ForegroundColor Green
 
 Draw-Separator
 
-Write-Host "[3/4] Checking Node.js and npm installation..." -ForegroundColor Yellow
+Write-Host "[4/5] Checking Node.js and npm installation..." -ForegroundColor Yellow
 Write-Host ""
 
 if (-not (Test-CommandExists -Command "node")) {
@@ -93,7 +113,7 @@ Write-Host "        [OK] Dependencies check passed" -ForegroundColor Green
 
 Draw-Separator
 
-Write-Host "[4/4] Starting servers..." -ForegroundColor Yellow
+Write-Host "[5/5] Starting servers..." -ForegroundColor Yellow
 Write-Host ""
 
 Write-Host "        Starting Backend Server (Port: 3000)..." -ForegroundColor White

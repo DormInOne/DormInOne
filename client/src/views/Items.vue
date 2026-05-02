@@ -87,7 +87,7 @@
               class="btn btn-primary btn-sm flex-1 flex items-center justify-center gap-1 transition-transform hover:scale-105"
               @click="borrowItem(item)"
             >
-              <ArrowRightLeft class="w-3 h-3" />
+              <ArrowLeftRight class="w-3 h-3" />
               借用
             </button>
             <button
@@ -224,7 +224,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Plus, Edit, Trash2, X, Package, MapPin, User, ArrowRightLeft, RotateCcw } from 'lucide-vue-next'
+import { Plus, Edit, Trash2, X, Package, MapPin, User, ArrowLeftRight, RotateCcw } from 'lucide-vue-next'
 import { itemsApi, roommatesApi } from '../services/api'
 import { useToast } from '../composables/useToast'
 import ConfirmModal from '../components/ConfirmModal.vue'

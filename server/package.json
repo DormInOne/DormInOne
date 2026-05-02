@@ -1,7 +1,7 @@
 {
   "name": "dorminone-server",
   "version": "1.0.0",
-  "description": "DormInOne 宿舍全能管家后端服务",
+  "description": "DormInOne 后端",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

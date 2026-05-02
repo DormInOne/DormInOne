@@ -6,8 +6,13 @@
     <div class="flex flex-col h-full">
       <div class="p-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-lg bg-primary-500 flex items-center justify-center">
-            <Home class="w-5 h-5 text-white" />
+          <div class="w-10 h-10 rounded-lg overflow-hidden bg-primary-500 flex items-center justify-center">
+            <img 
+              src="/logo.png" 
+              alt="DormInOne Logo" 
+              class="w-full h-full object-cover"
+              onerror="this.style.display='none'; this.parentElement.innerHTML='<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;w-5 h-5&quot;><path d=&quot;m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z&quot;/><polyline points=&quot;9 22 9 12 15 12 15 22&quot;/></svg>'"
+            />
           </div>
           <span v-if="!sidebarCollapsed" class="text-xl font-semibold text-gray-900 dark:text-white">
             DormInOne
@@ -46,11 +51,12 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { Home, Users, Calendar, FileText, Zap, Package, Settings, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { useAppStore } from '../stores/appStore'
 
 const appStore = useAppStore()
-const sidebarCollapsed = appStore.sidebarCollapsed
+const sidebarCollapsed = computed(() => appStore.sidebarCollapsed)
 
 const toggleSidebar = () => {
   appStore.toggleSidebar()
