@@ -2,15 +2,15 @@
   <div class="space-y-6">
     <div class="flex items-center justify-between flex-wrap gap-4">
       <div class="flex items-center gap-4 flex-wrap">
-        <button class="btn btn-primary inline-flex items-center gap-2 whitespace-nowrap" @click="openAddModal">
+        <button v-if="appStore.isAdmin" class="btn btn-primary inline-flex items-center gap-2 whitespace-nowrap" @click="openAddModal">
           <Plus class="w-4 h-4" />
           添加排班
         </button>
-        <button class="btn btn-secondary inline-flex items-center gap-2 whitespace-nowrap" @click="openSwapModal">
+        <button v-if="appStore.isAdmin" class="btn btn-secondary inline-flex items-center gap-2 whitespace-nowrap" @click="openSwapModal">
           <ArrowLeftRight class="w-4 h-4" />
           换值班
         </button>
-        <button class="btn btn-outline inline-flex items-center gap-2 whitespace-nowrap" @click="openManageModal">
+        <button v-if="appStore.isAdmin" class="btn btn-outline inline-flex items-center gap-2 whitespace-nowrap" @click="openManageModal">
           <List class="w-4 h-4" />
           管理排班
         </button>
@@ -254,7 +254,7 @@
                   </span>
                 </td>
                 <td class="py-3 px-4 text-right">
-                  <div class="flex items-center justify-end gap-2">
+                  <div v-if="appStore.isSupervisor" class="flex items-center justify-end gap-2">
                     <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors duration-200" @click="openEditModal(item)">
                       <Edit class="w-4 h-4 text-gray-500" />
                     </button>
@@ -289,8 +289,10 @@
 import { Plus, ChevronLeft, ChevronRight, X, Edit, Trash2, ArrowLeftRight, List, Repeat, Check, Calendar } from 'lucide-vue-next';
 import { scheduleApi, roommatesApi } from '../services/api';
 import { useToast } from '../composables/useToast';
+import { useAppStore } from '../stores/appStore';
 import ConfirmModal from '../components/ConfirmModal.vue';
 const { success, error } = useToast();
+const appStore = useAppStore();
 const roommates = ref([]);
 const schedule = ref([]);
 const currentWeekStart = ref(getWeekStart());
@@ -406,6 +408,11 @@ const saveSchedule = async () => {
  error('添加失败', '请至少选择一个室友');
  return;
  }
+ 
+ if (editingSchedule.value) {
+ await scheduleApi.delete(editingSchedule.value.id);
+ }
+ 
  const savePromises = formData.value.roommateIds.map(async (roommateId) => {
  const roommate = roommates.value.find(r => r.id === roommateId);
  const data = {
@@ -416,12 +423,7 @@ const saveSchedule = async () => {
  completed: false,
  isRecurring: formData.value.isRecurring
  };
- if (editingSchedule.value) {
- return scheduleApi.update(editingSchedule.value.id, data);
- }
- else {
  return scheduleApi.create(data);
- }
  });
  await Promise.all(savePromises);
  if (editingSchedule.value) {

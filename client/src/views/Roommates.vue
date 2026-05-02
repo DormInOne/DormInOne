@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <button class="btn btn-primary inline-flex items-center gap-2 whitespace-nowrap" @click="openAddModal">
+        <button v-if="appStore.isAdmin" class="btn btn-primary inline-flex items-center gap-2 whitespace-nowrap" @click="openAddModal">
           <Plus class="w-4 h-4" />
           添加室友
         </button>
@@ -49,12 +49,12 @@
             <Phone class="w-4 h-4 inline mr-1" />
             {{ roommate.phone || '未填写' }}
           </p>
-          <div class="flex gap-2">
+          <div v-if="appStore.isAdmin" class="flex gap-2">
             <button class="btn btn-outline btn-sm flex items-center gap-1 transition-transform hover:scale-105" @click="openEditModal(roommate)">
               <Edit class="w-3 h-3" />
               编辑
             </button>
-            <button class="btn btn-danger btn-sm flex items-center gap-1 transition-transform hover:scale-105" @click="confirmDelete(roommate)">
+            <button v-if="appStore.isSupervisor" class="btn btn-danger btn-sm flex items-center gap-1 transition-transform hover:scale-105" @click="confirmDelete(roommate)">
               <Trash2 class="w-3 h-3" />
               删除
             </button>
@@ -131,9 +131,11 @@ import { ref, computed, onMounted } from 'vue'
 import { Plus, Search, User, Phone, Edit, Trash2, X } from 'lucide-vue-next'
 import { roommatesApi } from '../services/api'
 import { useToast } from '../composables/useToast'
+import { useAppStore } from '../stores/appStore'
 import ConfirmModal from '../components/ConfirmModal.vue'
 
 const { success, error } = useToast()
+const appStore = useAppStore()
 
 const roommates = ref([])
 const searchQuery = ref('')

@@ -41,10 +41,12 @@ const toggleDarkMode = () => {
 const pageTitles = {
   Dashboard: { title: '首页仪表盘', subtitle: '欢迎回来，查看宿舍概览' },
   Roommates: { title: '室友管理', subtitle: '管理宿舍成员信息' },
+  Beds: { title: '床位管理', subtitle: '管理宿舍床位分配' },
   Schedule: { title: '值日排班', subtitle: '安排宿舍清洁任务' },
   Bills: { title: 'AA记账', subtitle: '记录和分摊宿舍费用' },
   Electricity: { title: '用电监控', subtitle: '跟踪用电量和费用' },
   Items: { title: '物品借用', subtitle: '管理共享物品' },
+  Repairs: { title: '物品报修', subtitle: '管理报修申请' },
   Settings: { title: '系统设置', subtitle: '配置应用参数' }
 }
 

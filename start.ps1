@@ -1,6 +1,6 @@
 <#
     DormInOne - Dormitory Management System
-    Server Manager v1.0.0
+    Server Manager v2.0.0
     ==============================================
 #>
 
@@ -38,17 +38,44 @@ function Test-CommandExists {
     return $exists
 }
 
+function Test-Port {
+    param(
+        [int]$Port,
+        [int]$Timeout = 1000
+    )
+    try {
+        $tcp = New-Object System.Net.Sockets.TCPClient
+        $connect = $tcp.BeginConnect("localhost", $Port, $null, $null)
+        $wait = $connect.AsyncWaitHandle.WaitOne($Timeout, $false)
+        if ($wait -and $tcp.Connected) {
+            $tcp.Close()
+            return $true
+        }
+        $tcp.Close()
+        return $false
+    } catch {
+        return $false
+    }
+}
+
 cls
 
 Write-Host ""
-Write-Host "  DormInOne - Dormitory Management System" -ForegroundColor Cyan
+Write-Host "  ██████╗  ██████╗ ███╗   ██╗██╗   ██╗██╗  ██╗" -ForegroundColor Cyan
+Write-Host "  ██╔══██╗██╔═══██╗████╗  ██║██║   ██║╚██╗██╔╝" -ForegroundColor Cyan
+Write-Host "  ██████╔╝██║   ██║██╔██╗ ██║██║   ██║ ╚███╔╝ " -ForegroundColor Cyan
+Write-Host "  ██╔═══╝ ██║   ██║██║╚██╗██║██║   ██║ ██╔██╗ " -ForegroundColor Cyan
+Write-Host "  ██║     ╚██████╔╝██║ ╚████║╚██████╔╝██╔╝ ██╗" -ForegroundColor Cyan
+Write-Host "  ╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "            Dormitory Management System" -ForegroundColor Gray
 Write-Host ""
 Write-Host "==============================================" -ForegroundColor Gray
-Write-Host "        Server Manager v1.0.0" -ForegroundColor Gray
+Write-Host "        Server Manager v2.0.0" -ForegroundColor Gray
 Write-Host "==============================================" -ForegroundColor Gray
 Draw-Separator
 
-Write-Host "[1/4] Terminating existing processes..." -ForegroundColor Yellow
+Write-Host "[1/5] Terminating existing processes..." -ForegroundColor Yellow
 
 $processNames = @("node", "npm", "vite", "vue")
 foreach ($processName in $processNames) {
@@ -68,7 +95,7 @@ Write-Host "        [OK] Existing processes terminated" -ForegroundColor Green
 
 Draw-Separator
 
-Write-Host "[2/4] Cleaning up occupied ports..." -ForegroundColor Yellow
+Write-Host "[2/5] Cleaning up occupied ports..." -ForegroundColor Yellow
 
 Clear-Ports -Ports @(3000, 5173)
 Write-Host "        [OK] Port cleanup completed" -ForegroundColor Green
@@ -116,15 +143,56 @@ Draw-Separator
 Write-Host "[5/5] Starting servers..." -ForegroundColor Yellow
 Write-Host ""
 
+$currentDir = Get-Location
+
 Write-Host "        Starting Backend Server (Port: 3000)..." -ForegroundColor White
-Start-Process -FilePath "cmd.exe" -ArgumentList "/k cd /d server && npm start" -WindowStyle Normal
+$backendProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/k cd /d `"$currentDir/server`" && npm start" -WindowStyle Normal -PassThru
+Write-Host "        [INFO] Backend process started (PID: $($backendProcess.Id))" -ForegroundColor Cyan
 
-Start-Sleep -Seconds 3
+Write-Host ""
+Write-Host "        Waiting for backend to start..." -ForegroundColor White
+$backendReady = $false
+for ($i = 0; $i -lt 10; $i++) {
+    Start-Sleep -Seconds 1
+    if (Test-Port -Port 3000) {
+        $backendReady = $true
+        break
+    }
+    Write-Host "        ." -ForegroundColor Gray -NoNewline
+}
+Write-Host ""
 
+if ($backendReady) {
+    Write-Host "        [OK] Backend Server is ready" -ForegroundColor Green
+} else {
+    Write-Host "        [WARN] Backend may not be ready yet, proceeding..." -ForegroundColor Yellow
+}
+
+Write-Host ""
 Write-Host "        Starting Frontend Server (Port: 5173)..." -ForegroundColor White
-Start-Process -FilePath "cmd.exe" -ArgumentList "/k cd /d client && npm run dev" -WindowStyle Normal
+$frontendProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/k cd /d `"$currentDir/client`" && npm run dev" -WindowStyle Normal -PassThru
+Write-Host "        [INFO] Frontend process started (PID: $($frontendProcess.Id))" -ForegroundColor Cyan
 
-Start-Sleep -Seconds 2
+Write-Host ""
+Write-Host "        Waiting for frontend to start..." -ForegroundColor White
+$frontendReady = $false
+for ($i = 0; $i -lt 15; $i++) {
+    Start-Sleep -Seconds 1
+    if (Test-Port -Port 5173) {
+        $frontendReady = $true
+        break
+    }
+    Write-Host "        ." -ForegroundColor Gray -NoNewline
+}
+Write-Host ""
+
+if ($frontendReady) {
+    Write-Host "        [OK] Frontend Server is ready" -ForegroundColor Green
+} else {
+    Write-Host "        [WARN] Frontend may not be ready yet, check the console window" -ForegroundColor Yellow
+}
+
+Start-Sleep -Seconds 1
 
 Draw-Separator
 

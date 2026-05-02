@@ -5,6 +5,20 @@ const axiosInstance = axios.create({
   timeout: 10000
 })
 
+// 全局请求拦截器 - 添加角色头信息
+axiosInstance.interceptors.request.use((config) => {
+  const role = localStorage.getItem('dorminone_role') || 'member'
+  const username = localStorage.getItem('dorminone_username') || ''
+  config.headers['x-role'] = role
+  config.headers['x-username'] = username
+  return config
+})
+
+export const authApi = {
+  login: (username, password) => axiosInstance.post('/login', { username, password }),
+  validate: () => axiosInstance.get('/validate')
+}
+
 export const roommatesApi = {
   getAll: () => axiosInstance.get('/roommates'),
   create: (data) => axiosInstance.post('/roommates', data),
@@ -40,4 +54,34 @@ export const itemsApi = {
   delete: (id) => axiosInstance.delete(`/items/${id}`),
   borrow: (id, borrowerId, borrowerName) => axiosInstance.get(`/items/${id}/borrow`, { params: { borrowerId, borrowerName } }),
   return: (id) => axiosInstance.get(`/items/${id}/return`)
+}
+
+export const bedsApi = {
+  getAll: () => axiosInstance.get('/beds'),
+  create: (data) => axiosInstance.post('/beds', data),
+  update: (id, data) => axiosInstance.put(`/beds/${id}`, data),
+  delete: (id) => axiosInstance.delete(`/beds/${id}`)
+}
+
+export const repairsApi = {
+  getAll: () => axiosInstance.get('/repairs'),
+  create: (data) => axiosInstance.post('/repairs', data),
+  update: (id, data) => axiosInstance.put(`/repairs/${id}`, data),
+  delete: (id) => axiosInstance.delete(`/repairs/${id}`)
+}
+
+export const cleanApi = {
+  getAll: () => axiosInstance.get('/clean'),
+  create: (data) => axiosInstance.post('/clean', data),
+  update: (id, data) => axiosInstance.put(`/clean/${id}`, data),
+  delete: (id) => axiosInstance.delete(`/clean/${id}`)
+}
+
+export const backupApi = {
+  download: () => axiosInstance.get('/backup', { responseType: 'blob' }),
+  restore: (data) => axiosInstance.post('/restore', data)
+}
+
+export const utilitiesApi = {
+  create: (data) => axiosInstance.post('/utilities', data)
 }

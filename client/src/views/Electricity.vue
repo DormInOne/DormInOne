@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <button class="btn btn-primary flex items-center gap-2" @click="openAddModal">
+        <button v-if="appStore.isSupervisor" class="btn btn-primary flex items-center gap-2" @click="openAddModal">
           <Plus class="w-4 h-4" />
           添加记录
         </button>
@@ -80,7 +80,7 @@
                 {{ record.note || '-' }}
               </td>
               <td class="py-3 px-4 text-right">
-                <div class="flex items-center justify-end gap-2">
+                <div v-if="appStore.isSupervisor" class="flex items-center justify-end gap-2">
                   <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors" @click="openEditModal(record)">
                     <Edit class="w-4 h-4 text-gray-500" />
                   </button>
@@ -179,9 +179,11 @@ import { ref, computed, onMounted } from 'vue'
 import { Plus, Edit, Trash2, X, Zap } from 'lucide-vue-next'
 import { electricityApi } from '../services/api'
 import { useToast } from '../composables/useToast'
+import { useAppStore } from '../stores/appStore'
 import ConfirmModal from '../components/ConfirmModal.vue'
 
 const { success, error } = useToast()
+const appStore = useAppStore()
 
 const electricity = ref([])
 const showModal = ref(false)

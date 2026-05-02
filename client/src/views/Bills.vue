@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <button class="btn btn-primary inline-flex items-center gap-2 whitespace-nowrap" @click="openAddModal">
+        <button v-if="appStore.isAdmin" class="btn btn-primary inline-flex items-center gap-2 whitespace-nowrap" @click="openAddModal">
           <Plus class="w-4 h-4" />
           添加账单
         </button>
@@ -72,11 +72,11 @@
                 </span>
               </td>
               <td class="py-3 px-4 text-right">
-                <div class="flex items-center justify-end gap-2">
+                <div v-if="appStore.isAdmin" class="flex items-center justify-end gap-2">
                   <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors" @click="openEditModal(bill)">
                     <Edit class="w-4 h-4 text-gray-500" />
                   </button>
-                  <button class="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors" @click="confirmDelete(bill)">
+                  <button v-if="appStore.isSupervisor" class="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors" @click="confirmDelete(bill)">
                     <Trash2 class="w-4 h-4 text-red-500" />
                   </button>
                 </div>
@@ -192,9 +192,11 @@ import { ref, computed, onMounted } from 'vue'
 import { Plus, Edit, Trash2, X, FileText } from 'lucide-vue-next'
 import { billsApi, roommatesApi } from '../services/api'
 import { useToast } from '../composables/useToast'
+import { useAppStore } from '../stores/appStore'
 import ConfirmModal from '../components/ConfirmModal.vue'
 
 const { success, error } = useToast()
+const appStore = useAppStore()
 
 const roommates = ref([])
 const bills = ref([])
