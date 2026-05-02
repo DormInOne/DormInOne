@@ -5,18 +5,53 @@ const axiosInstance = axios.create({
   timeout: 10000
 })
 
-// 全局请求拦截器 - 添加角色头信息
 axiosInstance.interceptors.request.use((config) => {
-  const role = localStorage.getItem('dorminone_role') || 'member'
+  const role = localStorage.getItem('dorminone_role') || ''
   const username = localStorage.getItem('dorminone_username') || ''
-  config.headers['x-role'] = role
-  config.headers['x-username'] = username
+  const floorId = localStorage.getItem('dorminone_floor_id') || ''
+  const dormId = localStorage.getItem('dorminone_dorm_id') || ''
+  
+  if (role) config.headers['x-role'] = role
+  if (username) config.headers['x-username'] = username
+  if (floorId) config.headers['x-floor-id'] = floorId
+  if (dormId) config.headers['x-dorm-id'] = dormId
+  
   return config
 })
 
 export const authApi = {
   login: (username, password) => axiosInstance.post('/login', { username, password }),
-  validate: () => axiosInstance.get('/validate')
+  validate: () => axiosInstance.get('/validate'),
+  validateInvite: (code) => axiosInstance.post('/validate-invite', { code }),
+  bindRole: (code, username, password, name, role) => 
+    axiosInstance.post('/bind-role', { code, username, password, name, role }),
+  getUserInfo: () => axiosInstance.get('/user-info')
+}
+
+export const floorsApi = {
+  getAll: () => axiosInstance.get('/floors'),
+  getById: (id) => axiosInstance.get(`/floors/${id}`),
+  create: (name, buildingName) => axiosInstance.post('/floors', { name, buildingName }),
+  update: (id, data) => axiosInstance.put(`/floors/${id}`, data),
+  delete: (id) => axiosInstance.delete(`/floors/${id}`),
+  regenerateInvite: (id) => axiosInstance.post(`/floors/${id}/regenerate-invite`)
+}
+
+export const dormitoriesApi = {
+  getAll: () => axiosInstance.get('/dormitories'),
+  getById: (id) => axiosInstance.get(`/dormitories/${id}`),
+  create: (floorId, name, className) => axiosInstance.post('/dormitories', { floorId, name, className }),
+  update: (id, data) => axiosInstance.put(`/dormitories/${id}`, data),
+  delete: (id) => axiosInstance.delete(`/dormitories/${id}`),
+  regenerateInvite: (id) => axiosInstance.post(`/dormitories/${id}/regenerate-invite`)
+}
+
+export const usersApi = {
+  getAll: () => axiosInstance.get('/users'),
+  getById: (id) => axiosInstance.get(`/users/${id}`),
+  create: (username, password, name) => axiosInstance.post('/users', { username, password, name }),
+  update: (id, data) => axiosInstance.put(`/users/${id}`, data),
+  delete: (id) => axiosInstance.delete(`/users/${id}`)
 }
 
 export const roommatesApi = {
@@ -79,7 +114,8 @@ export const cleanApi = {
 
 export const backupApi = {
   download: () => axiosInstance.get('/backup', { responseType: 'blob' }),
-  restore: (data) => axiosInstance.post('/restore', data)
+  restore: (data) => axiosInstance.post('/restore', data),
+  deleteAllData: () => axiosInstance.delete('/all-data')
 }
 
 export const utilitiesApi = {

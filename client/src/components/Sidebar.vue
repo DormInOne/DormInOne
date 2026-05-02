@@ -38,18 +38,14 @@
       </nav>
 
       <div class="p-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
-        <!-- 角色信息 -->
         <div v-if="!sidebarCollapsed && appStore.isLoggedIn" class="flex items-center gap-2 px-2 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
           <User class="w-4 h-4 text-gray-500" />
           <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">{{ appStore.username }}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">
-              {{ appStore.role === 'admin' ? '舍长' : '宿管' }}
-            </p>
+            <p class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">{{ appStore.name || appStore.username }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ appStore.getRoleText }}</p>
           </div>
         </div>
         
-        <!-- 登录/登出按钮 -->
         <button
           class="nav-item w-full justify-center"
           @click="handleAuth"
@@ -61,7 +57,6 @@
           </span>
         </button>
         
-        <!-- 折叠按钮 -->
         <button
           class="nav-item w-full justify-center"
           @click="toggleSidebar"
@@ -77,7 +72,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { Home, Users, LayoutGrid, Calendar, FileText, Zap, Package, Wrench, Settings, ChevronLeft, ChevronRight, LogIn, LogOut, User, Star, Layers } from 'lucide-vue-next'
+import { Home, Users, LayoutGrid, Calendar, FileText, Zap, Package, Wrench, Settings, ChevronLeft, ChevronRight, LogIn, LogOut, User, Star, Building2, UserCheck } from 'lucide-vue-next'
 import { useAppStore } from '../stores/appStore'
 import { useRouter } from 'vue-router'
 
@@ -92,22 +87,71 @@ const toggleSidebar = () => {
 const handleAuth = () => {
   if (appStore.isLoggedIn) {
     appStore.logout()
-    router.push('/')
+    router.push('/login')
   } else {
     router.push('/login')
   }
 }
 
-const menuItems = [
-  { name: 'Dashboard', path: '/', label: '仪表盘', icon: Home },
-  { name: 'Roommates', path: '/roommates', label: '室友管理', icon: Users },
-  { name: 'Beds', path: '/beds', label: '床位管理', icon: LayoutGrid },
-  { name: 'Schedule', path: '/schedule', label: '值日排班', icon: Calendar },
-  { name: 'Bills', path: '/bills', label: 'AA记账', icon: FileText },
-  { name: 'Electricity', path: '/electricity', label: '用电监控', icon: Zap },
-  { name: 'Items', path: '/items', label: '物品借用', icon: Package },
-  { name: 'Repairs', path: '/repairs', label: '物品报修', icon: Wrench },
-  { name: 'Clean', path: '/clean', label: '卫生评分', icon: Star },
-  { name: 'Settings', path: '/settings', label: '系统设置', icon: Settings }
-]
+const menuItems = computed(() => {
+  const baseMenu = [
+    { name: 'Dashboard', path: '/', label: '仪表盘', icon: Home }
+  ]
+
+  if (appStore.isSystemAdmin) {
+    return [
+      ...baseMenu,
+      { name: 'FloorManagement', path: '/admin/floors', label: '楼层管理', icon: Building2 },
+      { name: 'DormitoryManagement', path: '/admin/dormitories', label: '宿舍管理', icon: Users },
+      { name: 'UserManagement', path: '/admin/users', label: '用户管理', icon: UserCheck },
+      { name: 'Roommates', path: '/roommates', label: '室友管理', icon: User },
+      { name: 'Beds', path: '/beds', label: '床位管理', icon: LayoutGrid },
+      { name: 'Schedule', path: '/schedule', label: '值日排班', icon: Calendar },
+      { name: 'Bills', path: '/bills', label: 'AA记账', icon: FileText },
+      { name: 'Electricity', path: '/electricity', label: '用电监控', icon: Zap },
+      { name: 'Items', path: '/items', label: '物品借用', icon: Package },
+      { name: 'Repairs', path: '/repairs', label: '物品报修', icon: Wrench },
+      { name: 'Clean', path: '/clean', label: '卫生评分', icon: Star },
+      { name: 'Settings', path: '/settings', label: '系统设置', icon: Settings }
+    ]
+  }
+
+  if (appStore.isSupervisor) {
+    return [
+      ...baseMenu,
+      { name: 'Roommates', path: '/roommates', label: '成员管理', icon: User },
+      { name: 'Beds', path: '/beds', label: '床位分配', icon: LayoutGrid },
+      { name: 'Schedule', path: '/schedule', label: '值日表', icon: Calendar },
+      { name: 'Bills', path: '/bills', label: '水电账单', icon: FileText },
+      { name: 'Electricity', path: '/electricity', label: '水电数据', icon: Zap },
+      { name: 'Items', path: '/items', label: '物品借用', icon: Package },
+      { name: 'Repairs', path: '/repairs', label: '报修记录', icon: Wrench },
+      { name: 'Clean', path: '/clean', label: '卫生评分', icon: Star }
+    ]
+  }
+
+  if (appStore.isDormAdmin) {
+    return [
+      ...baseMenu,
+      { name: 'Roommates', path: '/roommates', label: '室友管理', icon: User },
+      { name: 'Beds', path: '/beds', label: '床位管理', icon: LayoutGrid },
+      { name: 'Schedule', path: '/schedule', label: '值日排班', icon: Calendar },
+      { name: 'Bills', path: '/bills', label: 'AA记账', icon: FileText },
+      { name: 'Electricity', path: '/electricity', label: '用电监控', icon: Zap },
+      { name: 'Items', path: '/items', label: '物品借用', icon: Package },
+      { name: 'Repairs', path: '/repairs', label: '物品报修', icon: Wrench },
+      { name: 'Clean', path: '/clean', label: '卫生评分', icon: Star },
+      { name: 'Settings', path: '/settings', label: '系统设置', icon: Settings }
+    ]
+  }
+
+  return [
+    ...baseMenu,
+    { name: 'Roommates', path: '/roommates', label: '成员列表', icon: User },
+    { name: 'Schedule', path: '/schedule', label: '值日安排', icon: Calendar },
+    { name: 'Bills', path: '/bills', label: '费用明细', icon: FileText },
+    { name: 'Items', path: '/items', label: '物品借用', icon: Package },
+    { name: 'Repairs', path: '/repairs', label: '报修申请', icon: Wrench }
+  ]
+})
 </script>

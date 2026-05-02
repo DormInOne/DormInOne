@@ -7,6 +7,11 @@ const routes = [
     component: () => import('../views/Login.vue')
   },
   {
+    path: '/onboarding',
+    name: 'Onboarding',
+    component: () => import('../views/Onboarding.vue')
+  },
+  {
     path: '/',
     name: 'Dashboard',
     component: () => import('../views/Dashboard.vue')
@@ -55,6 +60,21 @@ const routes = [
     path: '/settings',
     name: 'Settings',
     component: () => import('../views/Settings.vue')
+  },
+  {
+    path: '/admin/floors',
+    name: 'FloorManagement',
+    component: () => import('../views/FloorManagement.vue')
+  },
+  {
+    path: '/admin/dormitories',
+    name: 'DormitoryManagement',
+    component: () => import('../views/DormitoryManagement.vue')
+  },
+  {
+    path: '/admin/users',
+    name: 'UserManagement',
+    component: () => import('../views/UserManagement.vue')
   }
 ]
 
@@ -63,17 +83,56 @@ const router = createRouter({
   routes
 })
 
-// 路由守卫
 router.beforeEach((to, from, next) => {
-  // 登录页面直接放行
-  if (to.name === 'Login') {
+  const role = localStorage.getItem('dorminone_role')
+  const floorId = localStorage.getItem('dorminone_floor_id')
+  const dormId = localStorage.getItem('dorminone_dorm_id')
+  
+  if (to.name === 'Onboarding') {
+    if (role === 'system_admin') {
+      next('/')
+      return
+    }
     next()
     return
   }
   
-  // 非登录页面，检查是否有角色
-  // 如果没有角色（首次访问），自动设为 member 角色
-  // 角色检查在 App.vue 中处理
+  if (to.name === 'Login') {
+    if (role) {
+      if (role === 'system_admin') {
+        next('/')
+        return
+      }
+      if (floorId) {
+        next('/')
+        return
+      }
+      next('/onboarding')
+      return
+    }
+    next()
+    return
+  }
+  
+  if (!role) {
+    next('/login')
+    return
+  }
+  
+  if (role === 'system_admin') {
+    next()
+    return
+  }
+  
+  if (!floorId) {
+    next('/onboarding')
+    return
+  }
+  
+  if (role === 'dorm_admin' && !dormId) {
+    next('/onboarding')
+    return
+  }
   
   next()
 })

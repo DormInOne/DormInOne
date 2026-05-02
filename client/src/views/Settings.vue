@@ -48,7 +48,7 @@
       </div>
     </div>
 
-    <div v-if="appStore.isSupervisor" class="card p-6">
+    <div v-if="appStore.isSystemAdmin" class="card p-6">
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">数据管理</h2>
       
       <div class="space-y-4">
@@ -121,16 +121,16 @@
         <div class="flex items-center gap-4">
           <div :class="[
             'w-12 h-12 rounded-full flex items-center justify-center text-white font-bold',
-            appStore.role === 'admin' ? 'bg-green-500' : appStore.role === 'supervisor' ? 'bg-blue-500' : 'bg-gray-500'
+            appStore.role === 'system_admin' ? 'bg-purple-500' : appStore.role === 'supervisor' ? 'bg-blue-500' : appStore.role === 'dorm_admin' ? 'bg-green-500' : 'bg-gray-500'
           ]">
-            {{ appStore.role === 'admin' ? '舍' : appStore.role === 'supervisor' ? '宿' : '成' }}
+            {{ appStore.role === 'system_admin' ? '管' : appStore.role === 'supervisor' ? '宿' : appStore.role === 'dorm_admin' ? '舍' : '成' }}
           </div>
           <div>
             <p class="font-medium text-gray-900 dark:text-white">
-              {{ appStore.role === 'admin' ? '舍长' : appStore.role === 'supervisor' ? '宿管' : '宿舍成员' }}
+              {{ appStore.role === 'system_admin' ? '系统管理员' : appStore.role === 'supervisor' ? '楼层宿管' : appStore.role === 'dorm_admin' ? '宿舍舍长' : '宿舍成员' }}
             </p>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              {{ appStore.role === 'admin' ? '拥有所有管理权限' : appStore.role === 'supervisor' ? '可管理报修和查看报表' : '可查看信息并提交申请' }}
+              {{ appStore.role === 'system_admin' ? '拥有系统最高权限' : appStore.role === 'supervisor' ? '可管理本楼层所有宿舍' : appStore.role === 'dorm_admin' ? '可管理本宿舍事务' : '可查看信息并提交申请' }}
             </p>
           </div>
         </div>
@@ -206,7 +206,7 @@ const toggleSidebar = () => {
 }
 
 const backupData = async () => {
-  if (!appStore.isAdmin) return
+  if (!appStore.isSystemAdmin) return
   
   isBackingUp.value = true
   try {
@@ -302,27 +302,14 @@ const closeConfirmModal = () => {
 
 const handleClearData = async () => {
   try {
-    const roommates = (await roommatesApi.getAll()).data
-    const schedule = (await scheduleApi.getAll()).data
-    const bills = (await billsApi.getAll()).data
-    const electricity = (await electricityApi.getAll()).data
-    const items = (await itemsApi.getAll()).data
-    const beds = (await bedsApi.getAll()).data
-    const repairs = (await repairsApi.getAll()).data
-    
-    await Promise.all([
-      ...roommates.map(r => roommatesApi.delete(r.id)),
-      ...schedule.map(s => scheduleApi.delete(s.id)),
-      ...bills.map(b => billsApi.delete(b.id)),
-      ...electricity.map(e => electricityApi.delete(e.id)),
-      ...items.map(i => itemsApi.delete(i.id)),
-      ...beds.map(b => bedsApi.delete(b.id)),
-      ...repairs.map(r => repairsApi.delete(r.id))
-    ])
-    
-    success('清空成功', '所有数据已清空')
+    const response = await backupApi.deleteAllData()
+    if (response.data.success) {
+      success('清空成功', '所有数据已清空')
+    } else {
+      error('清空失败', response.data.message || '无法清空数据')
+    }
   } catch (err) {
-    error('清空失败', '无法清空数据')
+    error('清空失败', err.response?.data?.message || '无法清空数据')
     console.error('清空失败:', err)
   } finally {
     closeConfirmModal()
@@ -331,6 +318,6 @@ const handleClearData = async () => {
 
 const handleLogout = () => {
   appStore.logout()
-  router.push('/')
+  router.push('/login')
 }
 </script>

@@ -1,0 +1,12 @@
+{
+  "system_admin": {
+    "id": "sys_admin_001",
+    "username": "admin",
+    "password": "admin123",
+    "role": "system_admin",
+    "name": "系统管理员",
+    "floorId": null,
+    "dormId": null,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+}

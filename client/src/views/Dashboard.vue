@@ -1,5 +1,29 @@
 <template>
   <div class="space-y-6">
+    <div v-if="appStore.isSupervisor" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center">
+          <Building2 class="w-5 h-5 text-blue-600" />
+        </div>
+        <div>
+          <p class="text-sm text-blue-600 dark:text-blue-400">当前管理楼层</p>
+          <p class="font-semibold text-blue-900 dark:text-blue-200">{{ appStore.floorName }} ({{ appStore.buildingName || '宿舍楼' }})</p>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="appStore.isDormAdmin" class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center">
+          <Home class="w-5 h-5 text-green-600" />
+        </div>
+        <div>
+          <p class="text-sm text-green-600 dark:text-green-400">当前管理宿舍</p>
+          <p class="font-semibold text-green-900 dark:text-green-200">{{ appStore.className }} - {{ appStore.dormName }}</p>
+        </div>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <div class="card p-6">
         <div class="flex items-center justify-between">
@@ -114,8 +138,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Users, FileText, Zap, Package, Check } from 'lucide-vue-next'
+import { Users, FileText, Zap, Package, Check, Building2, Home } from 'lucide-vue-next'
 import { roommatesApi, scheduleApi, billsApi, electricityApi, itemsApi } from '../services/api'
+import { useAppStore } from '../stores/appStore'
+
+const appStore = useAppStore()
 
 const roommates = ref([])
 const schedule = ref([])
