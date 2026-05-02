@@ -11,15 +11,15 @@
           </div>
           <button
             :class="[
-              'relative w-12 h-6 rounded-full transition-colors duration-300',
+              'relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
               isDark ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'
             ]"
             @click="toggleDarkMode"
           >
             <span
               :class="[
-                'absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300',
-                isDark ? 'translate-x-7' : 'translate-x-1'
+                'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ease-in-out',
+                isDark ? 'translate-x-6' : 'translate-x-0'
               ]"
             ></span>
           </button>
@@ -32,15 +32,15 @@
           </div>
           <button
             :class="[
-              'relative w-12 h-6 rounded-full transition-colors duration-300',
+              'relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
               sidebarCollapsed ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'
             ]"
             @click="toggleSidebar"
           >
             <span
               :class="[
-                'absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300',
-                sidebarCollapsed ? 'translate-x-7' : 'translate-x-1'
+                'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ease-in-out',
+                sidebarCollapsed ? 'translate-x-6' : 'translate-x-0'
               ]"
             ></span>
           </button>
@@ -95,11 +95,11 @@
       <div class="space-y-4 text-sm">
         <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
           <span class="text-gray-500 dark:text-gray-400">应用名称</span>
-          <span class="text-gray-900 dark:text-white">DormInOne 宿舍全能管家</span>
+          <span class="text-gray-900 dark:text-white">DormInOne</span>
         </div>
         <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-          <span class="text-gray-500 dark:text-gray-400">版本</span>
-          <span class="text-gray-900 dark:text-white">1.0.0</span>
+          <span class="text-gray-500 dark:text-gray-400">GitHub 开源地址</span>
+          <span class="text-gray-900 dark:text-white"></span>
         </div>
         <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
           <span class="text-gray-500 dark:text-gray-400">技术栈</span>
