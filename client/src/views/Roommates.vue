@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <button class="btn btn-primary flex items-center gap-2" @click="openAddModal">
+        <button class="btn btn-primary inline-flex items-center gap-2 whitespace-nowrap" @click="openAddModal">
           <Plus class="w-4 h-4" />
           添加室友
         </button>
