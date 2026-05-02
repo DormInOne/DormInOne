@@ -1,18 +1,1 @@
-[
-  {
-    "id": "moo3yx9k6db2almp5i",
-    "name": "测试",
-    "avatar": "",
-    "phone": "123456",
-    "role": "member",
-    "createdAt": "2026-05-02T08:57:22.664Z"
-  },
-  {
-    "id": "moo3z1v20vs1n8sk5oh",
-    "name": "测试1",
-    "avatar": "",
-    "phone": "1144514",
-    "role": "admin",
-    "createdAt": "2026-05-02T08:57:28.622Z"
-  }
-]
+[]
