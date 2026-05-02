@@ -5,7 +5,6 @@
 ![DormInOne](https://img.shields.io/badge/DormInOne-%E5%AE%BF%E8%88%8D%E5%85%A8%E8%83%BD%E5%AE%B6%E5%AE%B6-blue)
 ![Vue3](https://img.shields.io/badge/Vue-3.x-green)
 ![Node.js](https://img.shields.io/badge/Node.js-18.x-blue)
-![Socket.io](https://img.shields.io/badge/Socket.io-%23010101.svg?style=flat&logo=socket.io&logoColor=white)
 
 ## 🏠 项目介绍
 
@@ -30,7 +29,7 @@ DormInOne 是一款专为宿舍生活打造的全能管理工具，帮助室友�
 | UI样式 | Tailwind CSS 3 |
 | 图标 | Lucide Vue |
 | 后端 | Node.js + Express |
-| 实时通信 | <img src="https://socket.io/images/logo.svg" alt="Socket.io" width="20" height="20" /> Socket.io |
+| 实时通信 | Socket.io |
 | 数据存储 | JSON 文件 |
 
 ## 🚀 快速开始
@@ -133,25 +132,4 @@ dorminone/
 ### 确认对话框
 优雅的模态对话框，带有动画效果。
 
-## 📝 更新日志
-
-### v1.0.0
-- ✅ 基础功能完成
-- ✅ 室友管理
-- ✅ 值日排班
-- ✅ AA记账
-- ✅ 用电监控
-- ✅ 物品借用
-- ✅ 深色模式支持
-- ✅ Toast 提醒系统
-- ✅ 确认对话框组件
-
-## 📄 许可证
-
-MIT License
-
----
-
-**DormInOne** - 让宿舍生活更美好 🏠✨
-
-*Built with ❤️ for dorm life*
+*DormInOne(DIO) team built with ❤️*
