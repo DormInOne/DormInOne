@@ -1,16 +1,64 @@
 <template>
   <div class="space-y-6">
+    <div v-if="appStore.isSystemAdmin || appStore.isSupervisor" class="card p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+      <div class="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+        <Info class="w-5 h-5" />
+        <span class="text-sm font-medium">请先选择楼层和宿舍，然后再进行床位管理操作</span>
+      </div>
+    </div>
+
+    <div v-if="appStore.isSystemAdmin || appStore.isSupervisor" class="flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">楼层</label>
+        <select 
+          v-model="selectedFloor" 
+          class="form-select w-48"
+          @change="onFloorChange"
+        >
+          <option value="">请选择楼层</option>
+          <option v-for="floor in availableFloors" :key="floor.id" :value="floor.id">
+            {{ floor.name }}
+          </option>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">宿舍</label>
+        <select 
+          v-model="selectedDorm" 
+          class="form-select w-48"
+          :disabled="!selectedFloor"
+        >
+          <option value="">请选择宿舍</option>
+          <option v-for="dorm in filteredDorms" :key="dorm.id" :value="dorm.id">
+            {{ dorm.name }} ({{ dorm.className }})
+          </option>
+        </select>
+      </div>
+    </div>
+
     <div class="flex items-center justify-between flex-wrap gap-4">
       <div class="flex items-center gap-4 flex-wrap">
-        <button v-if="appStore.isSupervisor" class="btn btn-primary inline-flex items-center gap-2 whitespace-nowrap" @click="openAddModal">
+        <button 
+          v-if="(appStore.isSystemAdmin || appStore.isSupervisor) && selectedDorm" 
+          class="btn btn-primary inline-flex items-center gap-2 whitespace-nowrap" 
+          @click="openAddModal"
+        >
           <Plus class="w-4 h-4" />
           添加床位
         </button>
-        <button v-if="appStore.isSupervisor" class="btn btn-secondary inline-flex items-center gap-2 whitespace-nowrap" @click="importBeds">
+        <button 
+          v-if="(appStore.isSystemAdmin || appStore.isSupervisor) && selectedDorm" 
+          class="btn btn-secondary inline-flex items-center gap-2 whitespace-nowrap" 
+          @click="importBeds"
+        >
           <Upload class="w-4 h-4" />
           批量导入
         </button>
-        <button v-if="appStore.isSupervisor" class="btn btn-outline inline-flex items-center gap-2 whitespace-nowrap" @click="exportBeds">
+        <button 
+          v-if="appStore.isSystemAdmin || appStore.isSupervisor" 
+          class="btn btn-outline inline-flex items-center gap-2 whitespace-nowrap" 
+          @click="exportBeds"
+        >
           <Download class="w-4 h-4" />
           导出数据
         </button>
@@ -86,12 +134,12 @@
         <table class="w-full">
           <thead>
             <tr class="border-b border-gray-200 dark:border-gray-700">
-              <th class="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">房间号</th>
+              <th class="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">宿舍</th>
               <th class="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">床位号</th>
               <th class="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">状态</th>
               <th class="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">入住人</th>
               <th class="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">入住时间</th>
-              <th class="text-right py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">操作</th>
+              <th v-if="appStore.isSystemAdmin || appStore.isSupervisor" class="text-right py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -101,7 +149,7 @@
               class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
             >
               <td class="py-3 px-4">
-                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm font-medium">{{ bed.roomNumber }}</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm font-medium">{{ bed.dormName || '-' }}</span>
               </td>
               <td class="py-3 px-4 text-sm text-gray-900 dark:text-white">{{ bed.bedNumber }}</td>
               <td class="py-3 px-4">
@@ -116,40 +164,40 @@
               </td>
               <td class="py-3 px-4 text-sm text-gray-900 dark:text-white">{{ bed.occupantName || '-' }}</td>
               <td class="py-3 px-4 text-sm text-gray-500 dark:text-gray-400">{{ bed.checkInDate || '-' }}</td>
-              <td class="py-3 px-4 text-right">
+              <td v-if="appStore.isSystemAdmin || appStore.isSupervisor" class="py-3 px-4 text-right">
                 <div class="flex items-center justify-end gap-2">
                   <button
-                    v-if="appStore.isSupervisor && bed.status === 'empty'"
+                    v-if="bed.status === 'empty'"
                     class="btn btn-xs btn-primary"
                     @click="openAssignModal(bed)"
                   >
                     分配
                   </button>
                   <button
-                    v-if="appStore.isSupervisor && bed.status === 'occupied'"
+                    v-if="bed.status === 'occupied'"
                     class="btn btn-xs btn-danger"
                     @click="confirmCheckout(bed)"
                   >
                     退宿
                   </button>
                   <button
-                    v-if="appStore.isSupervisor && bed.status !== 'maintenance'"
+                    v-if="bed.status !== 'maintenance'"
                     class="btn btn-xs btn-secondary"
                     @click="setMaintenance(bed)"
                   >
                     维修
                   </button>
                   <button
-                    v-if="appStore.isSupervisor && bed.status === 'maintenance'"
+                    v-if="bed.status === 'maintenance'"
                     class="btn btn-xs btn-green"
                     @click="fixBed(bed)"
                   >
                     修复
                   </button>
-                  <button v-if="appStore.isSupervisor" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors" @click="openEditModal(bed)">
+                  <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors" @click="openEditModal(bed)">
                     <Edit class="w-4 h-4 text-gray-500" />
                   </button>
-                  <button v-if="appStore.isSupervisor" class="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors" @click="confirmDelete(bed)">
+                  <button class="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors" @click="confirmDelete(bed)">
                     <Trash2 class="w-4 h-4 text-red-500" />
                   </button>
                 </div>
@@ -160,7 +208,16 @@
         <div v-if="filteredBeds.length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
           <BedDouble class="w-16 h-16 mx-auto mb-4 opacity-30" />
           <p>暂无床位信息</p>
-          <button class="btn btn-primary mt-4" @click="openAddModal">添加第一个床位</button>
+          <button 
+            v-if="(appStore.isSystemAdmin || appStore.isSupervisor) && selectedDorm" 
+            class="btn btn-primary mt-4" 
+            @click="openAddModal"
+          >
+            添加第一个床位
+          </button>
+          <p v-else-if="appStore.isSystemAdmin || appStore.isSupervisor" class="mt-4 text-sm">
+            请先选择要管理的宿舍
+          </p>
         </div>
       </div>
     </div>
@@ -177,18 +234,6 @@
         </div>
         <form @submit.prevent="saveBed">
           <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                房间号 <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="formData.roomNumber"
-                type="text"
-                required
-                placeholder="如：301"
-                class="form-input"
-              />
-            </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 床位号 <span class="text-red-500">*</span>
@@ -222,6 +267,16 @@
                 </option>
               </select>
             </div>
+            <div v-if="formData.status === 'occupied'">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                入住日期
+              </label>
+              <input
+                v-model="formData.checkInDate"
+                type="date"
+                class="form-input"
+              />
+            </div>
           </div>
           <div class="flex gap-3 mt-6">
             <button type="button" class="btn btn-secondary flex-1" @click="closeModal">
@@ -248,7 +303,7 @@
         <div class="mb-4">
           <p class="text-sm text-gray-500 dark:text-gray-400">床位信息</p>
           <p class="text-lg font-semibold text-gray-900 dark:text-white">
-            房间 {{ assigningBed?.roomNumber }} - 床位 {{ assigningBed?.bedNumber }}
+            {{ currentDormName }} - 床位 {{ assigningBed?.bedNumber }}
           </p>
         </div>
         <form @submit.prevent="assignBed">
@@ -309,17 +364,19 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Plus, Search, Edit, Trash2, X, Upload, Download, LayoutGrid, Users, Wrench } from 'lucide-vue-next'
+import { Plus, Search, Edit, Trash2, X, Upload, Download, LayoutGrid, Users, Wrench, BedDouble, Info } from 'lucide-vue-next'
 import { useToast } from '../composables/useToast'
 import { useAppStore } from '../stores/appStore'
 import ConfirmModal from '../components/ConfirmModal.vue'
-import { bedsApi, roommatesApi } from '../services/api'
+import { bedsApi, roommatesApi, floorsApi, dormitoriesApi } from '../services/api'
 
 const { success, error } = useToast()
 const appStore = useAppStore()
 
 const beds = ref([])
 const roommates = ref([])
+const floors = ref([])
+const dorms = ref([])
 const searchQuery = ref('')
 const filterStatus = ref('all')
 const showModal = ref(false)
@@ -330,9 +387,10 @@ const assigningBed = ref(null)
 const confirmMessage = ref('')
 const confirmAction = ref(null)
 const fileInput = ref(null)
+const selectedFloor = ref('')
+const selectedDorm = ref('')
 
 const formData = ref({
-  roomNumber: '',
   bedNumber: '',
   status: 'empty',
   occupantName: '',
@@ -350,18 +408,52 @@ const statusText = {
   maintenance: '维修中'
 }
 
-const filteredBeds = computed(() => {
-  return beds.value.filter(bed => {
-    const matchesSearch = bed.roomNumber.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                         bed.bedNumber.toLowerCase().includes(searchQuery.value.toLowerCase())
-    const matchesStatus = filterStatus.value === 'all' || bed.status === filterStatus.value
-    return matchesSearch && matchesStatus
-  })
+const availableFloors = computed(() => {
+  if (appStore.isSystemAdmin) {
+    return floors.value
+  } else if (appStore.isSupervisor && appStore.floorId) {
+    return floors.value.filter(f => f.id === appStore.floorId)
+  }
+  return []
 })
 
-const occupiedCount = computed(() => beds.value.filter(b => b.status === 'occupied').length)
-const emptyCount = computed(() => beds.value.filter(b => b.status === 'empty').length)
-const maintenanceCount = computed(() => beds.value.filter(b => b.status === 'maintenance').length)
+const filteredDorms = computed(() => {
+  if (!selectedFloor.value) return []
+  return dorms.value.filter(d => d.floorId === selectedFloor.value)
+})
+
+const currentDormName = computed(() => {
+  const dorm = dorms.value.find(d => d.id === selectedDorm.value)
+  return dorm ? `${dorm.className} - ${dorm.name}` : ''
+})
+
+const filteredBeds = computed(() => {
+  let result = beds.value
+  
+  if (selectedDorm.value) {
+    result = result.filter(b => b.dormId === selectedDorm.value)
+  } else if (selectedFloor.value) {
+    result = result.filter(b => b.floorId === selectedFloor.value)
+  } else if (appStore.isSupervisor && appStore.floorId) {
+    result = result.filter(b => b.floorId === appStore.floorId)
+  } else if (appStore.isDormAdmin && appStore.dormId) {
+    result = result.filter(b => b.dormId === appStore.dormId)
+  } else if (appStore.isMember && appStore.dormId) {
+    result = result.filter(b => b.dormId === appStore.dormId)
+  }
+  
+  const matchesSearch = bed => 
+    (bed.dormName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+     bed.bedNumber.toLowerCase().includes(searchQuery.value.toLowerCase()))
+  const matchesStatus = bed => 
+    filterStatus.value === 'all' || bed.status === filterStatus.value
+  
+  return result.filter(bed => matchesSearch(bed) && matchesStatus(bed))
+})
+
+const occupiedCount = computed(() => filteredBeds.value.filter(b => b.status === 'occupied').length)
+const emptyCount = computed(() => filteredBeds.value.filter(b => b.status === 'empty').length)
+const maintenanceCount = computed(() => filteredBeds.value.filter(b => b.status === 'maintenance').length)
 
 const availableRoommates = computed(() => {
   const occupiedNames = beds.value
@@ -372,22 +464,33 @@ const availableRoommates = computed(() => {
 
 const loadData = async () => {
   try {
-    const [bedsRes, roommatesRes] = await Promise.all([
+    const [bedsRes, roommatesRes, floorsRes, dormsRes] = await Promise.all([
       bedsApi.getAll(),
-      roommatesApi.getAll()
+      roommatesApi.getAll(),
+      floorsApi.getAll(),
+      dormitoriesApi.getAll()
     ])
     beds.value = bedsRes.data
     roommates.value = roommatesRes.data
+    floors.value = floorsRes.data
+    dorms.value = dormsRes.data
+    
+    if (appStore.isSupervisor && appStore.floorId) {
+      selectedFloor.value = appStore.floorId
+    }
   } catch (err) {
-    error('加载失败', '无法加载床位数据')
+    error('加载失败', '无法加载数据')
     console.error('加载数据失败:', err)
   }
+}
+
+const onFloorChange = () => {
+  selectedDorm.value = ''
 }
 
 const openAddModal = () => {
   editingBed.value = null
   formData.value = {
-    roomNumber: '',
     bedNumber: '',
     status: 'empty',
     occupantName: '',
@@ -399,7 +502,6 @@ const openAddModal = () => {
 const openEditModal = (bed) => {
   editingBed.value = bed
   formData.value = {
-    roomNumber: bed.roomNumber,
     bedNumber: bed.bedNumber,
     status: bed.status,
     occupantName: bed.occupantName || '',
@@ -416,7 +518,7 @@ const closeModal = () => {
 const saveBed = async () => {
   try {
     const data = {
-      roomNumber: formData.value.roomNumber,
+      dormId: selectedDorm.value,
       bedNumber: formData.value.bedNumber,
       status: formData.value.status,
       occupantName: formData.value.status === 'occupied' ? formData.value.occupantName : '',
@@ -490,13 +592,13 @@ const checkoutBed = async (bed) => {
 }
 
 const setMaintenance = (bed) => {
-  confirmMessage.value = `确定要将床位 ${bed.roomNumber}-${bed.bedNumber} 设为维修中吗？`
+  confirmMessage.value = `确定要将床位 ${bed.bedNumber} 设为维修中吗？`
   confirmAction.value = () => updateMaintenance(bed, 'maintenance')
   showConfirmModal.value = true
 }
 
 const fixBed = (bed) => {
-  confirmMessage.value = `确定要将床位 ${bed.roomNumber}-${bed.bedNumber} 设为已修复吗？`
+  confirmMessage.value = `确定要将床位 ${bed.bedNumber} 设为已修复吗？`
   confirmAction.value = () => updateMaintenance(bed, 'empty')
   showConfirmModal.value = true
 }
@@ -513,7 +615,7 @@ const updateMaintenance = async (bed, status) => {
 }
 
 const confirmDelete = (bed) => {
-  confirmMessage.value = `确定要删除床位 ${bed.roomNumber}-${bed.bedNumber} 吗？`
+  confirmMessage.value = `确定要删除床位 ${bed.bedNumber} 吗？`
   confirmAction.value = () => deleteBed(bed)
   showConfirmModal.value = true
 }
@@ -560,7 +662,7 @@ const handleFileImport = async (event) => {
     }
 
     for (const bed of importData) {
-      await bedsApi.create(bed)
+      await bedsApi.create({ ...bed, dormId: selectedDorm.value })
     }
 
     success('导入成功', `成功导入 ${importData.length} 条床位信息`)
@@ -591,7 +693,7 @@ const parseCSV = (text) => {
 }
 
 const exportBeds = () => {
-  const data = JSON.stringify(beds.value, null, 2)
+  const data = JSON.stringify(filteredBeds.value, null, 2)
   const blob = new Blob([data], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -607,7 +709,7 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style scoped lang="postcss">
 .btn-xs {
   @apply px-3 py-1 text-sm;
 }
@@ -628,6 +730,6 @@ onMounted(() => {
 }
 
 .animate-modal-in {
-  animation: modal-in 0.2s ease-out;
+  animation: modal-in 0.3s ease-out;
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
   <aside :class="[
-    'fixed left-0 top-0 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 z-50',
+    'fixed left-0 top-0 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-50',
     sidebarCollapsed ? 'w-20' : 'w-64'
   ]">
     <div class="flex flex-col h-full">
       <div class="p-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-lg overflow-hidden bg-primary-500 flex items-center justify-center">
+          <div class="w-10 h-10 rounded-lg overflow-hidden bg-primary-500 flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
             <img 
               src="/logo.png" 
               alt="DormInOne Logo" 
@@ -14,61 +14,94 @@
               onerror="this.style.display='none'; this.parentElement.innerHTML='<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;white&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;w-5 h-5&quot;><path d=&quot;m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z&quot;/><polyline points=&quot;9 22 9 12 15 12 15 22&quot;/></svg>'"
             />
           </div>
-          <span v-if="!sidebarCollapsed" class="text-xl font-semibold text-gray-900 dark:text-white">
-            DormInOne
-          </span>
+          <transition name="slide">
+            <span v-if="!sidebarCollapsed" class="text-xl font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+              DormInOne
+            </span>
+          </transition>
         </div>
       </div>
 
       <nav class="flex-1 py-4">
         <ul class="space-y-1 px-3">
-          <li v-for="item in menuItems" :key="item.name">
+          <li v-for="(item, index) in menuItems" :key="item.name">
             <router-link
               :to="item.path"
               :class="[
-                'nav-item flex items-center gap-3 w-full',
-                $route.name === item.name ? 'active' : ''
+                'nav-item flex items-center gap-3 w-full px-3 py-2.5 rounded-lg transition-all duration-200 ease-in-out',
+                $route.name === item.name 
+                  ? 'bg-primary-500 text-white shadow-md' 
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
               ]"
+              :style="{ animationDelay: `${index * 30}ms` }"
             >
-              <component :is="item.icon" class="w-5 h-5 flex-shrink-0" />
-              <span v-if="!sidebarCollapsed" class="text-sm font-medium">{{ item.label }}</span>
+              <component :is="item.icon" class="w-5 h-5 flex-shrink-0 transition-transform duration-200" />
+              <span v-if="!sidebarCollapsed" class="text-sm font-medium whitespace-nowrap">{{ item.label }}</span>
             </router-link>
           </li>
         </ul>
       </nav>
 
       <div class="p-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
-        <div v-if="!sidebarCollapsed && appStore.isLoggedIn" class="flex items-center gap-2 px-2 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-          <User class="w-4 h-4 text-gray-500" />
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">{{ appStore.name || appStore.username }}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{ appStore.getRoleText }}</p>
+        <transition name="slide">
+          <div v-if="!sidebarCollapsed && appStore.isLoggedIn" class="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+              <User class="w-4 h-4 text-primary-600 dark:text-primary-400" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">{{ appStore.name || appStore.username }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ appStore.getRoleText }}</p>
+            </div>
           </div>
-        </div>
+        </transition>
         
         <button
-          class="nav-item w-full justify-center"
+          class="nav-item w-full flex items-center justify-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-all duration-200"
           @click="handleAuth"
           :title="appStore.isLoggedIn ? '退出登录' : '管理员登录'"
         >
           <component :is="appStore.isLoggedIn ? LogOut : LogIn" class="w-5 h-5" />
-          <span v-if="!sidebarCollapsed" class="text-sm font-medium">
-            {{ appStore.isLoggedIn ? '退出登录' : '管理员登录' }}
-          </span>
+          <transition name="slide">
+            <span v-if="!sidebarCollapsed" class="text-sm font-medium whitespace-nowrap">
+              {{ appStore.isLoggedIn ? '退出登录' : '管理员登录' }}
+            </span>
+          </transition>
         </button>
         
         <button
-          class="nav-item w-full justify-center"
+          class="nav-item w-full flex items-center justify-center px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-all duration-200"
           @click="toggleSidebar"
           title="折叠侧边栏"
         >
-          <ChevronLeft v-if="!sidebarCollapsed" class="w-5 h-5" />
-          <ChevronRight v-else class="w-5 h-5" />
+          <component :is="sidebarCollapsed ? ChevronRight : ChevronLeft" class="w-5 h-5 transition-transform duration-300" />
         </button>
       </div>
     </div>
   </aside>
 </template>
+
+<style scoped>
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+  width: 0;
+  transform: translateX(-10px);
+}
+
+.nav-item:hover {
+  transform: translateX(2px);
+}
+
+.nav-item:active {
+  transform: scale(0.98);
+}
+</style>
 
 <script setup>
 import { computed } from 'vue'
@@ -133,8 +166,6 @@ const menuItems = computed(() => {
   if (appStore.isDormAdmin) {
     return [
       ...baseMenu,
-      { name: 'Roommates', path: '/roommates', label: '室友管理', icon: User },
-      { name: 'Beds', path: '/beds', label: '床位管理', icon: LayoutGrid },
       { name: 'Schedule', path: '/schedule', label: '值日排班', icon: Calendar },
       { name: 'Bills', path: '/bills', label: 'AA记账', icon: FileText },
       { name: 'Electricity', path: '/electricity', label: '用电监控', icon: Zap },
@@ -147,7 +178,6 @@ const menuItems = computed(() => {
 
   return [
     ...baseMenu,
-    { name: 'Roommates', path: '/roommates', label: '成员列表', icon: User },
     { name: 'Schedule', path: '/schedule', label: '值日安排', icon: Calendar },
     { name: 'Bills', path: '/bills', label: '费用明细', icon: FileText },
     { name: 'Items', path: '/items', label: '物品借用', icon: Package },

@@ -1,73 +1,77 @@
 <template>
   <div class="space-y-6">
-    <div v-if="appStore.isSupervisor" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center">
-          <Building2 class="w-5 h-5 text-blue-600" />
-        </div>
-        <div>
-          <p class="text-sm text-blue-600 dark:text-blue-400">当前管理楼层</p>
-          <p class="font-semibold text-blue-900 dark:text-blue-200">{{ appStore.floorName }} ({{ appStore.buildingName || '宿舍楼' }})</p>
+    <transition name="fade-scale">
+      <div v-if="appStore.isSupervisor" class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
+            <Building2 class="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <p class="text-sm text-blue-600 dark:text-blue-400">当前管理楼层</p>
+            <p class="font-semibold text-blue-900 dark:text-blue-200">{{ appStore.floorName }} ({{ appStore.buildingName || '宿舍楼' }})</p>
+          </div>
         </div>
       </div>
-    </div>
+    </transition>
 
-    <div v-if="appStore.isDormAdmin" class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center">
-          <Home class="w-5 h-5 text-green-600" />
-        </div>
-        <div>
-          <p class="text-sm text-green-600 dark:text-green-400">当前管理宿舍</p>
-          <p class="font-semibold text-green-900 dark:text-green-200">{{ appStore.className }} - {{ appStore.dormName }}</p>
+    <transition name="fade-scale">
+      <div v-if="appStore.isDormAdmin" class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
+            <Home class="w-5 h-5 text-green-600" />
+          </div>
+          <div>
+            <p class="text-sm text-green-600 dark:text-green-400">当前管理宿舍</p>
+            <p class="font-semibold text-green-900 dark:text-green-200">{{ appStore.className }} - {{ appStore.dormName }}</p>
+          </div>
         </div>
       </div>
-    </div>
+    </transition>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="card p-6">
+      <div class="card p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">室友数量</p>
             <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1">{{ roommatesCount }}</p>
           </div>
-          <div class="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+          <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
             <Users class="w-6 h-6 text-blue-500" />
           </div>
         </div>
       </div>
 
-      <div class="card p-6">
+      <div class="card p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">本月账单</p>
             <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1">¥{{ monthlyBills }}</p>
           </div>
-          <div class="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+          <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
             <FileText class="w-6 h-6 text-green-500" />
           </div>
         </div>
       </div>
 
-      <div class="card p-6">
+      <div class="card p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">本月用电</p>
             <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1">{{ monthlyElectricity }} kWh</p>
           </div>
-          <div class="w-12 h-12 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+          <div class="w-12 h-12 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
             <Zap class="w-6 h-6 text-yellow-500" />
           </div>
         </div>
       </div>
 
-      <div class="card p-6">
+      <div class="card p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">借用物品</p>
             <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1">{{ borrowedItems }}</p>
           </div>
-          <div class="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+          <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
             <Package class="w-6 h-6 text-purple-500" />
           </div>
         </div>
@@ -238,3 +242,20 @@ onMounted(() => {
   loadData()
 })
 </script>
+
+<style scoped>
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition: all 0.3s ease;
+}
+
+.fade-scale-enter-from {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+</style>

@@ -711,10 +711,10 @@ app.get('/api/roommates', requireMinRole('member'), (req, res) => {
   if (role !== 'system_admin') {
     data = data.filter(r => {
       if (role === 'supervisor' && floorId) {
-        return true;
+        return r.floorId === floorId;
       }
       if ((role === 'dorm_admin' || role === 'member') && dormId) {
-        return true;
+        return r.dormId === dormId;
       }
       return false;
     });
@@ -723,14 +723,30 @@ app.get('/api/roommates', requireMinRole('member'), (req, res) => {
   res.json(data);
 });
 
-app.post('/api/roommates', requireRole(['dorm_admin', 'system_admin']), (req, res) => {
+app.post('/api/roommates', requireRole(['supervisor', 'system_admin']), (req, res) => {
+  const role = req.headers['x-role'];
+  const floorId = req.headers['x-floor-id'];
+  const dormId = req.body.dormId;
+  
+  if (role === 'supervisor') {
+    const buildingsData = readJsonFile('buildings.json', { floors: [], dormitories: [], invites: [] });
+    const dorm = buildingsData.dormitories.find(d => d.id === dormId);
+    if (!dorm || dorm.floorId !== floorId) {
+      return res.status(403).json({ error: '只能添加自己楼层的成员' });
+    }
+  }
+  
   const data = readJsonFile('roommates.json', []);
   const newRoommate = {
     id: generateId(),
     name: req.body.name,
-    avatar: req.body.avatar || '',
+    username: req.body.username || '',
     phone: req.body.phone || '',
     role: req.body.role || 'member',
+    dormId: dormId,
+    floorId: req.body.floorId,
+    bedId: req.body.bedId || '',
+    bedNumber: req.body.bedNumber || '',
     createdAt: new Date().toISOString(),
     createdBy: req.headers['x-username'] || 'system'
   };
@@ -739,24 +755,41 @@ app.post('/api/roommates', requireRole(['dorm_admin', 'system_admin']), (req, re
   res.json(newRoommate);
 });
 
-app.put('/api/roommates/:id', requireRole(['dorm_admin', 'system_admin']), (req, res) => {
+app.put('/api/roommates/:id', requireRole(['supervisor', 'system_admin']), (req, res) => {
+  const role = req.headers['x-role'];
+  const floorId = req.headers['x-floor-id'];
+  
   const data = readJsonFile('roommates.json', []);
   const index = data.findIndex(r => r.id === req.params.id);
   if (index === -1) {
     return res.status(404).json({ error: '室友不存在' });
   }
+  
+  if (role === 'supervisor' && data[index].floorId !== floorId) {
+    return res.status(403).json({ error: '只能修改自己楼层的成员' });
+  }
+  
   data[index] = { ...data[index], ...req.body, updatedAt: new Date().toISOString() };
   writeJsonFile('roommates.json', data);
   res.json(data[index]);
 });
 
-app.delete('/api/roommates/:id', requireRole(['dorm_admin', 'system_admin']), (req, res) => {
+app.delete('/api/roommates/:id', requireRole(['supervisor', 'system_admin']), (req, res) => {
+  const role = req.headers['x-role'];
+  const floorId = req.headers['x-floor-id'];
+  
   let data = readJsonFile('roommates.json', []);
-  const beforeLength = data.length;
-  data = data.filter(r => r.id !== req.params.id);
-  if (data.length === beforeLength) {
+  const roommate = data.find(r => r.id === req.params.id);
+  
+  if (!roommate) {
     return res.status(404).json({ error: '室友不存在' });
   }
+  
+  if (role === 'supervisor' && roommate.floorId !== floorId) {
+    return res.status(403).json({ error: '只能删除自己楼层的成员' });
+  }
+  
+  data = data.filter(r => r.id !== req.params.id);
   writeJsonFile('roommates.json', data);
   res.json({ success: true });
 });
@@ -1045,7 +1078,7 @@ app.get('/api/items/:id/return', requireRole(['member', 'dorm_admin', 'system_ad
   res.json(item);
 });
 
-app.get('/api/beds', requireMinRole('dorm_admin'), (req, res) => {
+app.get('/api/beds', requireMinRole('member'), (req, res) => {
   const role = req.headers['x-role'];
   const floorId = req.headers['x-floor-id'];
   const dormId = req.headers['x-dorm-id'];
@@ -1055,10 +1088,10 @@ app.get('/api/beds', requireMinRole('dorm_admin'), (req, res) => {
   if (role !== 'system_admin') {
     data = data.filter(b => {
       if (role === 'supervisor' && floorId) {
-        return true;
+        return b.floorId === floorId;
       }
       if ((role === 'dorm_admin' || role === 'member') && dormId) {
-        return true;
+        return b.dormId === dormId;
       }
       return false;
     });
@@ -1067,14 +1100,28 @@ app.get('/api/beds', requireMinRole('dorm_admin'), (req, res) => {
   res.json(data);
 });
 
-app.post('/api/beds', requireRole(['dorm_admin', 'system_admin']), (req, res) => {
+app.post('/api/beds', requireRole(['supervisor', 'system_admin']), (req, res) => {
+  const role = req.headers['x-role'];
+  const floorId = req.headers['x-floor-id'];
+  const dormId = req.body.dormId;
+  
+  if (role === 'supervisor') {
+    const buildingsData = readJsonFile('buildings.json', { floors: [], dormitories: [], invites: [] });
+    const dorm = buildingsData.dormitories.find(d => d.id === dormId);
+    if (!dorm || dorm.floorId !== floorId) {
+      return res.status(403).json({ error: '只能创建自己楼层的床位' });
+    }
+  }
+  
   const data = readJsonFile('beds.json', []);
   const newBed = {
     id: generateId(),
-    roomNumber: req.body.roomNumber,
+    dormId: dormId,
+    floorId: req.body.floorId,
     bedNumber: req.body.bedNumber,
     status: req.body.status || 'empty',
     occupantName: req.body.occupantName || '',
+    occupantId: req.body.occupantId || '',
     checkInDate: req.body.checkInDate || '',
     createdAt: new Date().toISOString(),
     createdBy: req.headers['x-username'] || 'system'
@@ -1084,24 +1131,41 @@ app.post('/api/beds', requireRole(['dorm_admin', 'system_admin']), (req, res) =>
   res.json(newBed);
 });
 
-app.put('/api/beds/:id', requireRole(['dorm_admin', 'system_admin']), (req, res) => {
+app.put('/api/beds/:id', requireRole(['supervisor', 'system_admin']), (req, res) => {
+  const role = req.headers['x-role'];
+  const floorId = req.headers['x-floor-id'];
+  
   const data = readJsonFile('beds.json', []);
   const index = data.findIndex(b => b.id === req.params.id);
   if (index === -1) {
     return res.status(404).json({ error: '床位不存在' });
   }
+  
+  if (role === 'supervisor' && data[index].floorId !== floorId) {
+    return res.status(403).json({ error: '只能修改自己楼层的床位' });
+  }
+  
   data[index] = { ...data[index], ...req.body, updatedAt: new Date().toISOString() };
   writeJsonFile('beds.json', data);
   res.json(data[index]);
 });
 
-app.delete('/api/beds/:id', requireRole(['dorm_admin', 'system_admin']), (req, res) => {
+app.delete('/api/beds/:id', requireRole(['supervisor', 'system_admin']), (req, res) => {
+  const role = req.headers['x-role'];
+  const floorId = req.headers['x-floor-id'];
+  
   let data = readJsonFile('beds.json', []);
-  const beforeLength = data.length;
-  data = data.filter(b => b.id !== req.params.id);
-  if (data.length === beforeLength) {
+  const bed = data.find(b => b.id === req.params.id);
+  
+  if (!bed) {
     return res.status(404).json({ error: '床位不存在' });
   }
+  
+  if (role === 'supervisor' && bed.floorId !== floorId) {
+    return res.status(403).json({ error: '只能删除自己楼层的床位' });
+  }
+  
+  data = data.filter(b => b.id !== req.params.id);
   writeJsonFile('beds.json', data);
   res.json({ success: true });
 });

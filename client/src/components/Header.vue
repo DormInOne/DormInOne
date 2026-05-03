@@ -1,27 +1,83 @@
 <template>
-  <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+  <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 shadow-sm">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-          {{ pageTitle }}
-        </h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          {{ pageSubtitle }}
-        </p>
+        <transition name="fade-up">
+          <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+            {{ pageTitle }}
+          </h1>
+        </transition>
+        <transition name="fade-up-delay">
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {{ pageSubtitle }}
+          </p>
+        </transition>
       </div>
       <div class="flex items-center gap-4">
         <button
-          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105"
+          class="p-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95"
           @click="toggleDarkMode"
           :title="isDark ? '切换到浅色模式' : '切换到深色模式'"
         >
-          <Moon v-if="!isDark" class="w-5 h-5 text-gray-600 dark:text-gray-400 transition-all duration-300" />
-          <Sun v-else class="w-5 h-5 text-yellow-400 dark:text-yellow-400 transition-all duration-300" />
+          <transition name="spin" mode="out-in">
+            <Moon v-if="!isDark" class="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <Sun v-else class="w-5 h-5 text-yellow-500" />
+          </transition>
         </button>
       </div>
     </div>
   </header>
 </template>
+
+<style scoped>
+.fade-up-enter-active,
+.fade-up-leave-active {
+  transition: all 0.3s ease;
+}
+
+.fade-up-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.fade-up-leave-to {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.fade-up-delay-enter-active,
+.fade-up-delay-leave-active {
+  transition: all 0.3s ease;
+  transition-delay: 0.1s;
+}
+
+.fade-up-delay-enter-from {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
+.fade-up-delay-leave-to {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.spin-enter-active {
+  animation: spin 0.4s ease-out;
+}
+
+.spin-leave-active {
+  animation: spin 0.4s ease-in reverse;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+}
+</style>
 
 <script setup>
 import { computed } from 'vue'

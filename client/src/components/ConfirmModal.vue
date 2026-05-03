@@ -16,15 +16,15 @@
           </div>
           <div class="flex gap-3">
             <button
-              class="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 font-medium"
+              class="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 font-medium transform hover:scale-102 active:scale-98"
               @click="cancel"
             >
               取消
             </button>
             <button
               :class="[
-                'flex-1 px-4 py-2 rounded-lg hover:opacity-90 transition-all duration-200 font-medium',
-                type === 'danger' ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-primary-500 text-white hover:bg-primary-600'
+                'flex-1 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-102 active:scale-98',
+                type === 'danger' ? 'bg-red-500 text-white hover:bg-red-600 shadow-md hover:shadow-lg' : 'bg-primary-500 text-white hover:bg-primary-600 shadow-md hover:shadow-lg'
               ]"
               @click="confirm"
             >
