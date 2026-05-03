@@ -105,7 +105,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { Home, Users, LayoutGrid, Calendar, FileText, Zap, Package, Wrench, Settings, ChevronLeft, ChevronRight, LogIn, LogOut, User, Star, Building2, UserCheck } from 'lucide-vue-next'
+import { Home, Users, LayoutGrid, Calendar, FileText, Zap, Package, Wrench, Settings, ChevronLeft, ChevronRight, LogIn, LogOut, User, Star, Building2, UserCheck, Bell } from 'lucide-vue-next'
 import { useAppStore } from '../stores/appStore'
 import { useRouter } from 'vue-router'
 
@@ -145,7 +145,9 @@ const menuItems = computed(() => {
       { name: 'Items', path: '/items', label: '物品借用', icon: Package },
       { name: 'Repairs', path: '/repairs', label: '物品报修', icon: Wrench },
       { name: 'Clean', path: '/clean', label: '卫生评分', icon: Star },
-      { name: 'Settings', path: '/settings', label: '系统设置', icon: Settings }
+      { name: 'Settings', path: '/settings', label: '系统设置', icon: Settings },
+      { name: 'Profile', path: '/profile', label: '个人中心', icon: User },
+      { name: 'NotificationSettings', path: '/notifications', label: '通知设置', icon: Bell }
     ]
   }
 
@@ -159,7 +161,9 @@ const menuItems = computed(() => {
       { name: 'Electricity', path: '/electricity', label: '水电数据', icon: Zap },
       { name: 'Items', path: '/items', label: '物品借用', icon: Package },
       { name: 'Repairs', path: '/repairs', label: '报修记录', icon: Wrench },
-      { name: 'Clean', path: '/clean', label: '卫生评分', icon: Star }
+      { name: 'Clean', path: '/clean', label: '卫生评分', icon: Star },
+      { name: 'Profile', path: '/profile', label: '个人中心', icon: User },
+      { name: 'NotificationSettings', path: '/notifications', label: '通知设置', icon: Bell }
     ]
   }
 
@@ -172,7 +176,9 @@ const menuItems = computed(() => {
       { name: 'Items', path: '/items', label: '物品借用', icon: Package },
       { name: 'Repairs', path: '/repairs', label: '物品报修', icon: Wrench },
       { name: 'Clean', path: '/clean', label: '卫生评分', icon: Star },
-      { name: 'Settings', path: '/settings', label: '系统设置', icon: Settings }
+      { name: 'DormSettings', path: '/dorm-settings', label: '宿舍设置', icon: Settings },
+      { name: 'Profile', path: '/profile', label: '个人中心', icon: User },
+      { name: 'NotificationSettings', path: '/notifications', label: '通知设置', icon: Bell }
     ]
   }
 
@@ -181,7 +187,9 @@ const menuItems = computed(() => {
     { name: 'Schedule', path: '/schedule', label: '值日安排', icon: Calendar },
     { name: 'Bills', path: '/bills', label: '费用明细', icon: FileText },
     { name: 'Items', path: '/items', label: '物品借用', icon: Package },
-    { name: 'Repairs', path: '/repairs', label: '报修申请', icon: Wrench }
+    { name: 'Repairs', path: '/repairs', label: '报修申请', icon: Wrench },
+    { name: 'Profile', path: '/profile', label: '个人中心', icon: User },
+    { name: 'NotificationSettings', path: '/notifications', label: '通知设置', icon: Bell }
   ]
 })
 </script>

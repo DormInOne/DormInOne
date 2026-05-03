@@ -655,3 +655,91 @@ img[lazy].loaded {
 .animate-breathe {
   animation: breathe 3s ease-in-out infinite;
 }
+
+/* 护眼模式样式 */
+[data-theme="warm"] {
+  --color-background: #FAF8F5;
+  --color-background-secondary: #F5F2ED;
+  --color-background-card: #FFFFFF;
+  --color-text-primary: #3D3530;
+  --color-text-secondary: #6B615A;
+  --color-text-tertiary: #9A908A;
+  --color-border: #E8E4DF;
+  --color-border-light: #F0ECE7;
+  --color-primary: #8B7355;
+  --color-primary-hover: #A68B6B;
+  --color-success: #6B8E6B;
+  --color-warning: #C4A35A;
+  --color-error: #B85B5B;
+  --color-info: #6B7B8B;
+}
+
+[data-theme="warm"] .card {
+  background-color: var(--color-background-card);
+  border-color: var(--color-border);
+}
+
+[data-theme="warm"] .btn-primary {
+  background-color: var(--color-primary);
+}
+
+[data-theme="warm"] .btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+[data-theme="warm"] .form-input,
+[data-theme="warm"] .form-select,
+[data-theme="warm"] .form-textarea {
+  background-color: var(--color-background);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+[data-theme="warm"] .nav-item {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="warm"] .nav-item:hover {
+  background-color: var(--color-background-secondary);
+}
+
+[data-theme="warm"] .nav-item.active {
+  background-color: rgba(139, 115, 85, 0.1);
+  color: var(--color-primary);
+}
+
+/* 紧凑布局 */
+[data-layout="compact"] .card {
+  padding: 0.75rem;
+}
+
+[data-layout="compact"] .btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+[data-layout="compact"] .form-input,
+[data-layout="compact"] .form-select {
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* 自定义主色调支持 */
+:root {
+  --primary-50: rgba(59, 130, 246, 0.05);
+  --primary-100: rgba(59, 130, 246, 0.1);
+  --primary-200: rgba(59, 130, 246, 0.2);
+  --primary-300: rgba(59, 130, 246, 0.3);
+  --primary-400: rgba(59, 130, 246, 0.4);
+  --primary-500: #3B82F6;
+  --primary-600: rgba(59, 130, 246, 0.8);
+  --primary-700: rgba(59, 130, 246, 0.7);
+  --primary-800: rgba(59, 130, 246, 0.6);
+  --primary-900: rgba(59, 130, 246, 0.5);
+}
+
+/* 动画开关 */
+[data-animations="false"] * {
+  transition: none !important;
+  animation: none !important;
+}

@@ -1345,6 +1345,302 @@ app.post('/api/utilities', requireRole(['dorm_admin', 'system_admin']), (req, re
   res.json({ success: true, record: newRecord, bill });
 });
 
+app.get('/api/user-settings/:userId', requireMinRole('member'), (req, res) => {
+  const role = req.headers['x-role'];
+  const userId = req.params.userId;
+  const currentUserId = req.headers['x-user-id'];
+  const floorId = req.headers['x-floor-id'];
+  const dormId = req.headers['x-dorm-id'];
+  
+  const settingsData = readJsonFile('user_settings.json', {});
+  const usersData = readJsonFile('users.json', {});
+  const targetUser = usersData[userId];
+  
+  if (!targetUser) {
+    return res.status(404).json({ error: '用户不存在' });
+  }
+  
+  if (role !== 'system_admin') {
+    if (role === 'supervisor' && targetUser.floorId !== floorId) {
+      return res.status(403).json({ error: '只能查看本楼层用户设置' });
+    }
+    if ((role === 'dorm_admin' || role === 'member') && targetUser.dormId !== dormId) {
+      return res.status(403).json({ error: '只能查看本宿舍用户设置' });
+    }
+    if (role === 'member' && userId !== currentUserId) {
+      return res.status(403).json({ error: '只能查看自己的设置' });
+    }
+  }
+  
+  const settings = settingsData[userId] || getDefaultUserSettings();
+  res.json(settings);
+});
+
+app.put('/api/user-settings/:userId', requireMinRole('member'), (req, res) => {
+  const role = req.headers['x-role'];
+  const userId = req.params.userId;
+  const currentUserId = req.headers['x-user-id'];
+  const floorId = req.headers['x-floor-id'];
+  const dormId = req.headers['x-dorm-id'];
+  
+  const usersData = readJsonFile('users.json', {});
+  const targetUser = usersData[userId];
+  
+  if (!targetUser) {
+    return res.status(404).json({ error: '用户不存在' });
+  }
+  
+  if (role !== 'system_admin') {
+    if (role === 'supervisor' && targetUser.floorId !== floorId) {
+      return res.status(403).json({ error: '只能修改本楼层用户设置' });
+    }
+    if ((role === 'dorm_admin' || role === 'member') && userId !== currentUserId) {
+      return res.status(403).json({ error: '只能修改自己的设置' });
+    }
+  }
+  
+  const settingsData = readJsonFile('user_settings.json', {});
+  settingsData[userId] = {
+    ...(settingsData[userId] || getDefaultUserSettings()),
+    ...req.body,
+    updatedAt: new Date().toISOString()
+  };
+  writeJsonFile('user_settings.json', settingsData);
+  
+  res.json({ success: true, settings: settingsData[userId] });
+});
+
+const getDefaultUserSettings = () => ({
+  theme: 'light',
+  primaryColor: '#3B82F6',
+  layout: 'normal',
+  fontSize: 'normal',
+  animationsEnabled: true,
+  soundEnabled: false,
+  dateFormat: 'YYYY-MM-DD',
+  timeFormat: 'HH:mm',
+  defaultPage: 'dashboard',
+  profile: {
+    avatar: '',
+    nickname: '',
+    bio: '',
+    gender: '',
+    birthday: '',
+    hobbies: [],
+    phone: '',
+    qq: '',
+    wechat: '',
+    phoneVisible: 'self',
+    socialVisible: 'self',
+    birthdayVisible: 'self',
+    realNameVisible: 'self',
+    statusVisible: 'self'
+  },
+  status: {
+    onlineStatus: 'online',
+    mood: '',
+    todayStatus: ''
+  },
+  notifications: {
+    repairReminder: false,
+    scheduleReminder: true,
+    announcementReminder: false,
+    approvalReminder: true,
+    systemReminder: true,
+    notificationStyle: 'popup',
+    doNotDisturb: false,
+    dndStart: '22:00',
+    dndEnd: '07:00'
+  },
+  homeLayout: {
+    cards: ['bills', 'schedule', 'repairs', 'electricity', 'items'],
+    hiddenCards: [],
+    cardOrder: []
+  },
+  createdAt: new Date().toISOString()
+});
+
+app.get('/api/dorm-settings/:dormId', requireMinRole('member'), (req, res) => {
+  const role = req.headers['x-role'];
+  const dormId = req.params.dormId;
+  const floorId = req.headers['x-floor-id'];
+  const userDormId = req.headers['x-dorm-id'];
+  
+  const buildingsData = readJsonFile('buildings.json', { floors: [], dormitories: [], invites: [] });
+  const dorm = buildingsData.dormitories.find(d => d.id === dormId);
+  
+  if (!dorm) {
+    return res.status(404).json({ error: '宿舍不存在' });
+  }
+  
+  if (role !== 'system_admin') {
+    if (role === 'supervisor' && dorm.floorId !== floorId) {
+      return res.status(403).json({ error: '只能查看本楼层宿舍设置' });
+    }
+    if ((role === 'dorm_admin' || role === 'member') && dormId !== userDormId) {
+      return res.status(403).json({ error: '只能查看自己宿舍的设置' });
+    }
+  }
+  
+  const settingsData = readJsonFile('dorm_settings.json', {});
+  const settings = settingsData[dormId] || getDefaultDormSettings();
+  res.json(settings);
+});
+
+app.put('/api/dorm-settings/:dormId', requireRole(['dorm_admin', 'system_admin']), (req, res) => {
+  const role = req.headers['x-role'];
+  const dormId = req.params.dormId;
+  const floorId = req.headers['x-floor-id'];
+  const userDormId = req.headers['x-dorm-id'];
+  
+  const buildingsData = readJsonFile('buildings.json', { floors: [], dormitories: [], invites: [] });
+  const dorm = buildingsData.dormitories.find(d => d.id === dormId);
+  
+  if (!dorm) {
+    return res.status(404).json({ error: '宿舍不存在' });
+  }
+  
+  if (role === 'dorm_admin' && dormId !== userDormId) {
+    return res.status(403).json({ error: '只能修改自己宿舍的设置' });
+  }
+  
+  if (role === 'system_admin' && dorm.floorId !== floorId) {
+    return res.status(403).json({ error: '只能修改本楼层宿舍的设置' });
+  }
+  
+  const settingsData = readJsonFile('dorm_settings.json', {});
+  settingsData[dormId] = {
+    ...(settingsData[dormId] || getDefaultDormSettings()),
+    ...req.body,
+    updatedAt: new Date().toISOString()
+  };
+  writeJsonFile('dorm_settings.json', settingsData);
+  
+  res.json({ success: true, settings: settingsData[dormId] });
+});
+
+const getDefaultDormSettings = () => ({
+  name: '',
+  avatar: '',
+  backgroundImage: '',
+  slogan: '',
+  rules: '',
+  scheduleStyle: 'calendar',
+  announcements: [],
+  homeLayout: {
+    modules: ['overview', 'schedule', 'bills', 'repairs'],
+    hiddenModules: [],
+    moduleOrder: []
+  },
+  permissions: {
+    allowNicknameChange: true,
+    allowContactDisplay: true
+  },
+  createdAt: new Date().toISOString()
+});
+
+app.post('/api/dorm-settings/:dormId/announcement', requireRole(['dorm_admin', 'system_admin']), (req, res) => {
+  const dormId = req.params.dormId;
+  const userDormId = req.headers['x-dorm-id'];
+  
+  if (req.headers['x-role'] === 'dorm_admin' && dormId !== userDormId) {
+    return res.status(403).json({ error: '只能发布自己宿舍的公告' });
+  }
+  
+  const settingsData = readJsonFile('dorm_settings.json', {});
+  if (!settingsData[dormId]) {
+    settingsData[dormId] = getDefaultDormSettings();
+  }
+  
+  const announcement = {
+    id: generateId(),
+    title: req.body.title,
+    content: req.body.content,
+    style: req.body.style || 'default',
+    createdAt: new Date().toISOString(),
+    createdBy: req.headers['x-username'] || 'system'
+  };
+  
+  settingsData[dormId].announcements.unshift(announcement);
+  writeJsonFile('dorm_settings.json', settingsData);
+  
+  res.json({ success: true, announcement });
+});
+
+app.delete('/api/dorm-settings/:dormId/announcement/:announcementId', requireRole(['dorm_admin', 'system_admin']), (req, res) => {
+  const dormId = req.params.dormId;
+  const announcementId = req.params.announcementId;
+  const userDormId = req.headers['x-dorm-id'];
+  
+  if (req.headers['x-role'] === 'dorm_admin' && dormId !== userDormId) {
+    return res.status(403).json({ error: '只能删除自己宿舍的公告' });
+  }
+  
+  const settingsData = readJsonFile('dorm_settings.json', {});
+  if (!settingsData[dormId]) {
+    return res.status(404).json({ error: '宿舍设置不存在' });
+  }
+  
+  const beforeLength = settingsData[dormId].announcements.length;
+  settingsData[dormId].announcements = settingsData[dormId].announcements.filter(a => a.id !== announcementId);
+  
+  if (settingsData[dormId].announcements.length === beforeLength) {
+    return res.status(404).json({ error: '公告不存在' });
+  }
+  
+  writeJsonFile('dorm_settings.json', settingsData);
+  res.json({ success: true });
+});
+
+app.post('/api/user-settings/:userId/change-password', requireMinRole('member'), (req, res) => {
+  const userId = req.params.userId;
+  const currentUserId = req.headers['x-user-id'];
+  const { oldPassword, newPassword } = req.body;
+  
+  if (userId !== currentUserId && req.headers['x-role'] !== 'system_admin') {
+    return res.status(403).json({ error: '只能修改自己的密码' });
+  }
+  
+  const usersData = readJsonFile('users.json', {});
+  const user = usersData[userId];
+  
+  if (!user) {
+    return res.status(404).json({ error: '用户不存在' });
+  }
+  
+  if (req.headers['x-role'] !== 'system_admin' && user.password !== oldPassword) {
+    return res.status(400).json({ error: '旧密码错误' });
+  }
+  
+  user.password = newPassword;
+  user.updatedAt = new Date().toISOString();
+  writeJsonFile('users.json', usersData);
+  
+  res.json({ success: true, message: '密码修改成功' });
+});
+
+app.get('/api/avatars', (req, res) => {
+  const avatars = [
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=1',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=2',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=3',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=4',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=5',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=6',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=7',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=8',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=1',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=2',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=3',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=4',
+    'https://api.dicebear.com/7.x/gridy/svg?seed=1',
+    'https://api.dicebear.com/7.x/gridy/svg?seed=2',
+    'https://api.dicebear.com/7.x/gridy/svg?seed=3',
+    'https://api.dicebear.com/7.x/gridy/svg?seed=4'
+  ];
+  res.json(avatars);
+});
+
 app.listen(PORT, () => {
   console.log(`服务器运行在 http://localhost:${PORT}`);
 });

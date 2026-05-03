@@ -75,6 +75,21 @@ const routes = [
     path: '/admin/users',
     name: 'UserManagement',
     component: () => import('../views/UserManagement.vue')
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('../views/Profile.vue')
+  },
+  {
+    path: '/dorm-settings',
+    name: 'DormSettings',
+    component: () => import('../views/DormSettings.vue')
+  },
+  {
+    path: '/notifications',
+    name: 'NotificationSettings',
+    component: () => import('../views/NotificationSettings.vue')
   }
 ]
 

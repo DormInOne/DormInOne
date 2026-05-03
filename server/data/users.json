@@ -1,0 +1,15 @@
+{
+  "admin": {
+    "id": "admin",
+    "username": "admin",
+    "password": "admin",
+    "name": "系统管理员",
+    "role": "system_admin",
+    "floorId": null,
+    "dormId": null,
+    "floorName": null,
+    "dormName": null,
+    "className": null,
+    "buildingName": null
+  }
+}

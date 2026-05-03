@@ -1,1 +1,0 @@
-import{c as e}from"./index-DlqOvr2Y.js";var t=e("RefreshCwIcon",[["path",{d:"M21 2v6h-6",key:"1lwg0q"}],["path",{d:"M3 12a9 9 0 0 1 15-6.7L21 8",key:"vaktt2"}],["path",{d:"M3 22v-6h6",key:"6llvyv"}],["path",{d:"M21 12a9 9 0 0 1-15 6.7L3 16",key:"i52hsp"}]]);export{t as R};

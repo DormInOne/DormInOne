@@ -121,3 +121,23 @@ export const backupApi = {
 export const utilitiesApi = {
   create: (data) => axiosInstance.post('/utilities', data)
 }
+
+export const userSettingsApi = {
+  get: (userId) => axiosInstance.get(`/user-settings/${userId}`),
+  update: (userId, data) => axiosInstance.put(`/user-settings/${userId}`, data),
+  changePassword: (userId, oldPassword, newPassword) => 
+    axiosInstance.post(`/user-settings/${userId}/change-password`, { oldPassword, newPassword })
+}
+
+export const dormSettingsApi = {
+  get: (dormId) => axiosInstance.get(`/dorm-settings/${dormId}`),
+  update: (dormId, data) => axiosInstance.put(`/dorm-settings/${dormId}`, data),
+  addAnnouncement: (dormId, title, content, style) => 
+    axiosInstance.post(`/dorm-settings/${dormId}/announcement`, { title, content, style }),
+  deleteAnnouncement: (dormId, announcementId) => 
+    axiosInstance.delete(`/dorm-settings/${dormId}/announcement/${announcementId}`)
+}
+
+export const avatarsApi = {
+  getAll: () => axiosInstance.get('/avatars')
+}

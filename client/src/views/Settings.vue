@@ -9,20 +9,7 @@
             <p class="font-medium text-gray-900 dark:text-white">深色模式</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">切换界面颜色主题</p>
           </div>
-          <button
-            :class="[
-              'relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
-              isDark ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'
-            ]"
-            @click="toggleDarkMode"
-          >
-            <span
-              :class="[
-                'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ease-in-out',
-                isDark ? 'translate-x-6' : 'translate-x-0'
-              ]"
-            ></span>
-          </button>
+          <Switch v-model="localDarkMode" />
         </div>
 
         <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -30,20 +17,7 @@
             <p class="font-medium text-gray-900 dark:text-white">折叠侧边栏</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">隐藏侧边栏文字标签</p>
           </div>
-          <button
-            :class="[
-              'relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
-              sidebarCollapsed ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'
-            ]"
-            @click="toggleSidebar"
-          >
-            <span
-              :class="[
-                'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ease-in-out',
-                sidebarCollapsed ? 'translate-x-6' : 'translate-x-0'
-              ]"
-            ></span>
-          </button>
+          <Switch v-model="localSidebarCollapsed" />
         </div>
       </div>
     </div>
@@ -178,32 +152,33 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Download, Trash2, Archive, Upload, Loader2 } from 'lucide-vue-next'
 import { useAppStore } from '../stores/appStore'
 import { useRouter } from 'vue-router'
 import { roommatesApi, scheduleApi, billsApi, electricityApi, itemsApi, bedsApi, repairsApi, backupApi } from '../services/api'
 import { useToast } from '../composables/useToast'
 import ConfirmModal from '../components/ConfirmModal.vue'
+import Switch from '../components/Switch.vue'
 
 const { success, error } = useToast()
 const appStore = useAppStore()
 const router = useRouter()
 
-const isDark = computed(() => appStore.darkMode)
-const sidebarCollapsed = computed(() => appStore.sidebarCollapsed)
+const localDarkMode = ref(appStore.darkMode)
+const localSidebarCollapsed = ref(appStore.sidebarCollapsed)
 const showConfirmModal = ref(false)
 const confirmMessage = ref('')
 const isBackingUp = ref(false)
 const fileInput = ref(null)
 
-const toggleDarkMode = () => {
+watch(localDarkMode, (newVal) => {
   appStore.toggleDarkMode()
-}
+})
 
-const toggleSidebar = () => {
+watch(localSidebarCollapsed, (newVal) => {
   appStore.toggleSidebar()
-}
+})
 
 const backupData = async () => {
   if (!appStore.isSystemAdmin) return

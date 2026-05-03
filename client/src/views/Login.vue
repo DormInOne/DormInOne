@@ -76,10 +76,12 @@ import { ref } from 'vue'
 import { Lock, LogIn, Loader2, Users, Home } from 'lucide-vue-next'
 import { authApi } from '../services/api'
 import { useAppStore } from '../stores/appStore'
+import { useSettingsStore } from '../stores/settingsStore'
 import { useRouter } from 'vue-router'
 
 const appStore = useAppStore()
 const router = useRouter()
+const settingsStore = useSettingsStore()
 
 const username = ref('')
 const password = ref('')
@@ -114,6 +116,7 @@ const handleLogin = async () => {
         data.className || '',
         data.buildingName || ''
       )
+      await settingsStore.loadUserSettings(data.username)
       router.push('/')
     } else {
       error.value = data.message || '登录失败'

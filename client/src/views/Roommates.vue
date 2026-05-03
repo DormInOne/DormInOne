@@ -116,7 +116,7 @@
             {{ roommate.phone || '未填写' }}
           </p>
           <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
-            <BedDouble class="w-4 h-4 inline mr-1" />
+            <Bed class="w-4 h-4 inline mr-1" />
             {{ roommate.bedNumber || '未分配床位' }}
           </p>
           <div v-if="appStore.isSystemAdmin || appStore.isSupervisor" class="flex gap-2">
@@ -224,7 +224,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Plus, Search, User, Phone, Edit, Trash2, X, Info, UserCheck, BedDouble } from 'lucide-vue-next'
+import { Plus, Search, User, Phone, Edit, Trash2, X, Info, UserCheck, Bed } from 'lucide-vue-next'
 import { roommatesApi, bedsApi, floorsApi, dormitoriesApi, usersApi } from '../services/api'
 import { useToast } from '../composables/useToast'
 import { useAppStore } from '../stores/appStore'
